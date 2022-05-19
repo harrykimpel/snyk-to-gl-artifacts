@@ -1,10 +1,11 @@
 [![Snyk logo](https://snyk.io/style/asset/logo/snyk-print.svg)](https://snyk.io)
 
 ---
+# (NOT officially supported by Snyk - draft version)
 
-# Snyk JSON to HTML Mapper
+# Snyk JSON to GitLab Artifact Report JSON
 
-The Snyk JSON to HTML Mapper takes the json outputted from `snyk test --json` and creates a local HTML file displaying the vulnerabilities discovered.
+The Snyk JSON to GitLab Artifact Report JSON takes the json outputted from `snyk test --json` and creates a local HTML file displaying the vulnerabilities discovered.
 
 # How do I use it?
 

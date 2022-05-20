@@ -12,7 +12,7 @@ program
     'Template location for generating the html. Defaults to template/test-report.hbs',
   )
   .option(
-    '-st, --scantype <type>',
+    '--scantype <type>',
     'scantype can be either <dependency-scan> or <license-scan>',
   )
   .option(

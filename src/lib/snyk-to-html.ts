@@ -267,33 +267,6 @@ async function generateTemplate(data: any,
     gitLabVulns.push(gitLabVuln)
   });
 
-  /*var dep_files = [
-    {
-      "path": "Unknown",
-      "package_manager": "npm",
-      "dependencies": [
-        {
-          "package": {
-            "name": "test"
-          },
-          "version": "0.4.7",
-          "iid": 1234,
-          "direct": true,
-          "dependency_path": [
-            {
-              "iid": 1234
-            }
-          ]
-        }
-      ]
-    }
-  ]
-
-  var jsonOutput = {
-    "version": "14.1.2",
-    "vulnerabilities": gitLabVulns,
-    "dependency_files": dep_files
-  }*/
   var jsonOutput = {
     "version": "14.1.2",
     "vulnerabilities": gitLabVulns,

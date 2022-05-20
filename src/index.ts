@@ -12,6 +12,10 @@ program
     'Template location for generating the html. Defaults to template/test-report.hbs',
   )
   .option(
+    '-st, --scantype <type>',
+    'scantype can be either <dependency-scan> or <license-scan>',
+  )
+  .option(
     '-i, --input <path>',
     'Input path from where to read the json. Defaults to stdin',
   )
@@ -33,6 +37,7 @@ program
 let template;
 let source;
 let output;
+let scantype;
 
 if (program.template) {
   // template
@@ -65,6 +70,13 @@ if (program.output) {
     output = undefined;
   }
 }
+if (program.scantype) {
+  // output destination
+  scantype = program.scantype; // grab the next item
+  if (typeof scantype === 'boolean') {
+    scantype = undefined;
+  }
+}
 
 if (program.debug) {
   const nameSpace = 'snyk-to-html';
@@ -77,8 +89,9 @@ SnykToHtml.run(
   source,
   !!program.actionableRemediation,
   template,
+  scantype,
   !!program.summary,
-  onReportOutput,
+  onReportOutput
 );
 
 function onReportOutput(report: string): void {

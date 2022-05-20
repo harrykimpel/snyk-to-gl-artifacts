@@ -54,10 +54,11 @@ class SnykToHtml {
   public static run(dataSource: string,
     remediation: boolean,
     hbsTemplate: string,
+    scantype: string,
     summary: boolean,
     reportCallback: (value: string) => void): void {
     SnykToHtml
-      .runAsync(dataSource, remediation, hbsTemplate, summary)
+      .runAsync(dataSource, remediation, hbsTemplate, scantype, summary)
       .then(reportCallback)
       .catch(handleInvalidJson);
   }
@@ -65,6 +66,7 @@ class SnykToHtml {
   public static async runAsync(source: string,
     remediation: boolean,
     template: string,
+    scantype: string,
     summary: boolean): Promise<string> {
     const promisedString = source ? readFile(source, 'utf8') : readInputFromStdin();
     return promisedString
@@ -87,7 +89,7 @@ class SnykToHtml {
               : template;
           return processCodeData(data, template, summary);
         } else {
-          return processData(data, remediation, template, summary);
+          return processData(data, remediation, template, scantype, summary);
         }
       });
   }
@@ -175,6 +177,7 @@ async function registerPeerPartial(templatePath: string, name: string): Promise<
 
 async function generateTemplate(data: any,
   template: string,
+  scantype: string,
   showRemediation: boolean,
   summary: boolean):
   Promise<string> {
@@ -215,6 +218,8 @@ async function generateTemplate(data: any,
 
   //console.log('sortedVulns: ' + JSON.stringify(sortedVulns))
   var gitLabVulns: any[] = [];
+  var lics: any[] = [];
+  var licDeps: any[] = [];
   sortedVulns.forEach(vuln => {
 
     var identifiers: any[] = [];
@@ -265,12 +270,45 @@ async function generateTemplate(data: any,
     }
 
     gitLabVulns.push(gitLabVuln)
+
+    if (vuln.metadata.license != undefined) {
+      var lic = {
+        "id": vuln.metadata.license,
+        "name": vuln.metadata.license,
+        "url": "https://opensource.org/licenses/" + vuln.metadata.license
+      };
+
+      lics.push(lic);
+
+      var licDep = {
+        "name": vuln.metadata.name,
+        "version": vuln.metadata.version,
+        "package_manager": vuln.metadata.packageManager,
+        "path": "pom.xml",
+        "licenses": [
+          vuln.metadata.license
+        ]
+      };
+
+      licDeps.push(licDep);
+    }
   });
 
-  var jsonOutput = {
-    "version": "14.1.2",
-    "vulnerabilities": gitLabVulns,
-    "dependency_files": data.uniqueLibs
+  var jsonOutput = {};
+  if (scantype == 'dependency-scan') {
+    jsonOutput = {
+      "version": "14.1.2",
+      "vulnerabilities": gitLabVulns,
+      "dependency_files": data.uniqueLibs
+
+    };
+  }
+  else if (scantype == 'license-scan') {
+    jsonOutput = {
+      "version": "2.1",
+      "licenses": lics,
+      "dependencies": licDeps
+    };
   }
 
   return JSON.stringify(jsonOutput);
@@ -339,7 +377,7 @@ function mergeData(dataArray: any[]): any {
   };
 }
 
-async function processData(data: any, remediation: boolean, template: string, summary: boolean): Promise<string> {
+async function processData(data: any, remediation: boolean, template: string, scantype: string, summary: boolean): Promise<string> {
   if (!Array.isArray(data)) {
     var uniqueLibs: any[] = [];
     var totalUniqueLibs: string[] = [];
@@ -463,7 +501,7 @@ async function processData(data: any, remediation: boolean, template: string, su
     //console.log(licDistro)
   }
   const mergedData = Array.isArray(data) ? mergeData(data) : data;
-  return generateTemplate(mergedData, template, remediation, summary);
+  return generateTemplate(mergedData, template, scantype, remediation, summary);
 }
 
 async function processIacData(data: any, template: string, summary: boolean): Promise<string> {

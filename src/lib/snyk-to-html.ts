@@ -233,33 +233,12 @@ async function generateTemplate(data: any,
 
     //console.log('vuln: ' + JSON.stringify(vuln))
     const capitalizeseverity = vuln.metadata.severity[0].toUpperCase() + vuln.metadata.severity.slice(1);
-    /*var gitLabVuln = {
-      "id": vuln.metadata.id,
-      "category": "dependency_scanning",
-      "name": vuln.metadata.title,
-      "message": vuln.metadata.name,
-      //"description": vuln.metadata.description,
-      "description": "my descr",
-      "severity": capitalizeseverity,
-      "cve": vuln.metadata.cveSpaced,
-      "identifiers": identifiers,
-      "location": {
-        "file": vuln.metadata.name,
-        "dependency": {}
-      },
-      "scanner": {
-        "id": "Snyk",
-        "name": "Snyk",
-        "version": "SaaS",
-        "vendor": "Snyk"
-      }
-    }*/
     var gitLabVuln = {
       "id": vuln.metadata.id,
       "category": "dependency_scanning",
       "name": vuln.metadata.title,
       "message": vuln.metadata.name,
-      "description": "my descr",
+      "description": vuln.metadata.description,
       "severity": capitalizeseverity,
       "solution": "Upgrade to latest versions.",
       "cve": vuln.metadata.cveSpaced,
@@ -276,7 +255,7 @@ async function generateTemplate(data: any,
           "package": {
             "name": vuln.metadata.name,
           },
-          "version": "0.4.7"
+          "version": vuln.metadata.version
         }
       },
       "scanner": {
@@ -284,157 +263,44 @@ async function generateTemplate(data: any,
         "name": "Snyk"
       }
     }
+
     gitLabVulns.push(gitLabVuln)
-    /*vuln.vulnerabilities.forEach(vuln => {
-      console.log(vuln.packageName);
-      if (!totalUniqueLibs.includes(vuln.packageName)) {
-        totalUniqueLibs.push(vuln.packageName)
-      }
-    })*/
   });
 
-  /*var jsonOutput = {
-    "version": "14.1.1",
+  /*var dep_files = [
+    {
+      "path": "Unknown",
+      "package_manager": "npm",
+      "dependencies": [
+        {
+          "package": {
+            "name": "test"
+          },
+          "version": "0.4.7",
+          "iid": 1234,
+          "direct": true,
+          "dependency_path": [
+            {
+              "iid": 1234
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+  var jsonOutput = {
+    "version": "14.1.2",
     "vulnerabilities": gitLabVulns,
-    "dependency_files": data.uniqueLibs
+    "dependency_files": dep_files
   }*/
   var jsonOutput = {
     "version": "14.1.2",
     "vulnerabilities": gitLabVulns,
-    "dependency_files": [{ "path": "Unknown", "package_manager": "npm", "dependencies": [{ "package": { "name": "test" }, "version": "0.4.7", "iid": 1234, "direct": true, "dependency_path": [{ "iid": 1234 }] }] }]
+    "dependency_files": data.uniqueLibs
   }
 
-
-  /*var jsonOutput = {
-    "version": "14.1.2",
-    "vulnerabilities": [
-      {
-        "id": "51e83874-0ff6-4677-a4c5-249060554eae",
-        "category": "dependency_scanning",
-        "name": "Regular Expression Denial of Service",
-        "message": "Regular Expression Denial of Service in debug",
-        "description": "The debug module is vulnerable to regular expression denial of service when untrusted user input is passed into the `o` formatter. It takes around 50k characters to block for 2 seconds making this a low severity issue.",
-        "severity": "Unknown",
-        "solution": "Upgrade to latest versions.",
-        "scanner": {
-          "id": "gemnasium",
-          "name": "Gemnasium"
-        },
-        "location": {
-          "file": "yarn.lock",
-          "dependency": {
-            "package": {
-              "name": "debug"
-            },
-            "version": "1.0.5"
-          }
-        },
-        "identifiers": [
-          {
-            "type": "gemnasium",
-            "name": "Gemnasium-37283ed4-0380-40d7-ada7-2d994afcc62a",
-            "value": "37283ed4-0380-40d7-ada7-2d994afcc62a",
-            "url": "https://deps.sec.gitlab.com/packages/npm/debug/versions/1.0.5/advisories"
-          }
-        ],
-        "links": [
-          {
-            "url": "https://nodesecurity.io/advisories/534"
-          },
-          {
-            "url": "https://github.com/visionmedia/debug/issues/501"
-          },
-          {
-            "url": "https://github.com/visionmedia/debug/pull/504"
-          }
-        ],
-        "cve": "CVE-2017-11429"
-      },
-      {
-        "id": "5d681b13-e8fa-4668-957e-8d88f932ddc7",
-        "category": "dependency_scanning",
-        "name": "Authentication bypass via incorrect DOM traversal and canonicalization",
-        "message": "Authentication bypass via incorrect DOM traversal and canonicalization in saml2-js",
-        "description": "Some XML DOM traversal and canonicalization APIs may be inconsistent in handling of comments within XML nodes. Incorrect use of these APIs by some SAML libraries results in incorrect parsing of the inner text of XML nodes such that any inner text after the comment is lost prior to cryptographically signing the SAML message. Text after the comment, therefore, has no impact on the signature on the SAML message.\r\n\r\nA remote attacker can modify SAML content for a SAML service provider without invalidating the cryptographic signature, which may allow attackers to bypass primary authentication for the affected SAML service provider.",
-        "severity": "Unknown",
-        "solution": "Upgrade to fixed version.\r\n",
-        "scanner": {
-          "id": "gemnasium",
-          "name": "Gemnasium"
-        },
-        "location": {
-          "file": "yarn.lock",
-          "dependency": {
-            "package": {
-              "name": "saml2-js"
-            },
-            "version": "1.5.0"
-          }
-        },
-        "identifiers": [
-          {
-            "type": "gemnasium",
-            "name": "Gemnasium-9952e574-7b5b-46fa-a270-aeb694198a98",
-            "value": "9952e574-7b5b-46fa-a270-aeb694198a98",
-            "url": "https://deps.sec.gitlab.com/packages/npm/saml2-js/versions/1.5.0/advisories"
-          },
-          {
-            "type": "cve",
-            "name": "CVE-2017-11429",
-            "value": "CVE-2017-11429",
-            "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-11429"
-          }
-        ],
-        "links": [
-          {
-            "url": "https://github.com/Clever/saml2/commit/3546cb61fd541f219abda364c5b919633609ef3d#diff-af730f9f738de1c9ad87596df3f6de84R279"
-          },
-          {
-            "url": "https://github.com/Clever/saml2/issues/127"
-          },
-          {
-            "url": "https://www.kb.cert.org/vuls/id/475445"
-          }
-        ],
-        "cve": "CVE-2017-11429"
-      }
-    ],
-    "dependency_files": [{ "path": "Unknown", "package_manager": "npm", "dependencies": [{ "package": { "name": "test" }, "version": "0.4.7", "iid": 1234, "direct": true, "dependency_path": [{ "iid": 1234 }] }] }],
-    "remediations": [
-      {
-        "fixes": [
-          {
-            "id": "5d681b13-e8fa-4668-957e-8d88f932ddc7",
-            "cve": "CVE-2017-11429"
-          }
-        ],
-        "summary": "Upgrade saml2-js",
-        "diff": "ZGlmZiAtLWdpdCBhL...OR0d1ZUc2THh3UT09Cg==" // some content is omitted for brevity
-      }
-    ]
-  }*/
-
   return JSON.stringify(jsonOutput);
-
-  // JUnit output
-  /*var xmlOutput = `<? xml version="1.0" encoding="UTF-8" ?>
-<testsuites id="20140612_170519" name="New_configuration (14/06/12 17:05:19)" tests="225" failures="1262" time="0.001" >
-  <testsuite id="codereview.cobol.analysisProvider" name="COBOL Code Review" tests="45" failures="17" time="0.001" >
-    <testcase id="codereview.cobol.rules.ProgramIdRule" name="Use a program name that matches the source file name" time="0.001" >
-      <failure message="PROGRAM.cbl:2 Use a program name that matches the source file name" type="WARNING" >
-WARNING: Use a program name that matches the source file name
-Category: COBOL Code Review – Naming Conventions
-File: /project/PROGRAM.cbl
-Line: 2
-      </failure>
-    </testcase>
-  </testsuite>
-</testsuites>`;
-  return xmlOutput;*/
-
-  // HTML output
-  //const htmlTemplate = await compileTemplate(template);
-  //return htmlTemplate(data);
 }
 
 async function generateIacTemplate(
@@ -515,16 +381,36 @@ async function processData(data: any, remediation: boolean, template: string, su
     //console.log(JSON.stringify(data));
     //var json = JSON.parse(data)
     data.vulnerabilities.forEach(vuln => {
-      var lib = {
-        "path": "Unknown",
-        "package_manager": vuln.packageManager,
-        "dependencies": [{
-          "version": vuln.version
-        }]
-      }
-      uniqueLibs.push(lib);
       if (!totalUniqueLibs.includes(vuln.packageName)) {
         totalUniqueLibs.push(vuln.packageName)
+
+        /*var lib = {
+          "path": vuln.name,
+          "package_manager": vuln.packageManager,
+          "dependencies": [{
+            "version": vuln.version
+          }]
+        }*/
+        var lib = {
+          "path": JSON.stringify(vuln.from),
+          "package_manager": vuln.packageManager,
+          "dependencies": [
+            {
+              "package": {
+                "name": vuln.name,
+              },
+              "version": vuln.version,
+              "iid": 1234,
+              "direct": true,
+              "dependency_path": [
+                {
+                  "iid": 1234
+                }
+              ]
+            }
+          ]
+        }
+        uniqueLibs.push(lib);
       }
 
       if (vuln.type === "license") {
